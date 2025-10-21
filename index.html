@@ -280,6 +280,58 @@
       font-weight: 700;
     }
 
+    /* Modal para Dropbox Embed */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close {
+      color: var(--text-secondary);
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 15px;
+      top: 10px;
+    }
+
+    .close:hover {
+      color: var(--primary-color);
+    }
+
+    .dropbox-embed {
+      width: 100%;
+      height: 400px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
     #result {
       margin-top: 20px;
       padding: 10px;
@@ -341,37 +393,15 @@
         width: 100%;
         max-width: none;
       }
+      .modal-content {
+        margin: 10% auto;
+        width: 95%;
+      }
+      .dropbox-embed {
+        height: 300px;
+      }
     }
   </style>
-
-  <!-- Scripts do Google Picker e OAuth -->
-  <script>
-    let tokenClient;
-    let accessToken = null;
-    let pickerInited = false;
-    let gisInited = false;
-
-    // Carrega o Picker
-    function onApiLoad() {
-      gapi.load('picker', onPickerApiLoad);
-    }
-
-    function onPickerApiLoad() {
-      pickerInited = true;
-    }
-
-    // Inicializa OAuth
-    function gisLoaded() {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: '55857641333-0b3q5g8p3b0u0t1s9r2v4w6x8y0z2a4b.apps.googleusercontent.com',  // Client ID adicionado aqui
-        scope: 'https://www.googleapis.com/auth/drive.file',  // Escopo mínimo para privacidade
-        callback: '',  // Definido depois
-      });
-      gisInited = true;
-    }
-  </script>
-  <script async defer src="https://apis.google.com/js/api.js" onload="onApiLoad()"></script>
-  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </head>
 <body>
 
@@ -465,12 +495,12 @@
     </div>
   </section>
 
-  <!-- Seção de Envio de Atividades -->
+  <!-- Seção de Envio de Atividades com Dropbox -->
   <section class="envio-section">
     <div class="container">
       <div class="envio-title">
         <h2>Envie Sua Atividade</h2>
-        <p>Selecione um arquivo do seu Google Drive e envie para correção.</p>
+        <p>Envie sua planilha resolvida para correção. Sem necessidade de conta.</p>
       </div>
       <div class="aulas-grid">
         <div class="aula-card">
@@ -479,18 +509,29 @@
               <i class="fas fa-upload"></i>
             </div>
             <h3>Upload de Arquivo</h3>
-            <p>Clique abaixo para abrir o seletor de arquivos do Google Drive.</p>
+            <p>Clique para abrir o formulário de envio.</p>
           </div>
           <div class="aula-body">
-            <button onclick="createPicker()" class="btn">
+            <button onclick="openModal()" class="btn">
               <i class="fas fa-cloud-upload-alt"></i> Enviar Atividade
             </button>
-            <div id="result"></div>  <!-- Mostra resultado do upload -->
+            <div id="result"></div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- Modal com Embed do Dropbox -->
+  <div id="dropboxModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Envie Sua Atividade</h3>
+      <p>Nomeie o arquivo com 'Aula XX - Seu Nome' para facilitar.</p>
+      <iframe class="dropbox-embed" src="https://www.dropbox.com/request/SEU_LINK_DO_FILE_REQUEST?embed=1" allowfullscreen></iframe>  <!-- Substitua SEU_LINK_DO_FILE_REQUEST pelo link gerado no Dropbox -->
+      <p style="text-align: center; margin-top: 10px; font-size: 14px; color: var(--text-secondary);">Arquivos vão direto para o professor. Você recebe confirmação por e-mail se quiser.</p>
+    </div>
+  </div>
 
   <!-- Rodapé -->
   <footer>
@@ -505,81 +546,21 @@
     </div>
   </footer>
 
-  <!-- Script principal do Picker -->
+  <!-- Script para Modal -->
   <script>
-    // Função para criar o Picker
-    function createPicker() {
-      const showPicker = () => {
-        if (!pickerInited) {
-          alert('Picker ainda carregando... Tente novamente.');
-          return;
-        }
-        const picker = new google.picker.PickerBuilder()
-          .addView(google.picker.ViewId.DOCS)  // Mostra documentos (mude para IMAGES se quiser só imagens)
-          .setOAuthToken(accessToken)
-          .setDeveloperKey('AIzaSyBKOZ2j3WTaCsafunstfuSn2n1TgNHRRSI')  // Chave de API
-          .setCallback(pickerCallback)
-          .setAppId('558572641333')  // App ID (número do projeto)
-          .build();
-        picker.setVisible(true);
-      };
-
-      // Solicita token de acesso
-      tokenClient.callback = async (response) => {
-        if (response.error !== undefined) {
-          throw (response);
-        }
-        accessToken = response.access_token;
-        showPicker();
-      };
-
-      if (accessToken === null) {
-        tokenClient.requestAccessToken({prompt: 'consent'});
-      } else {
-        tokenClient.requestAccessToken({prompt: ''});
-      }
+    function openModal() {
+      document.getElementById('dropboxModal').style.display = 'block';
     }
 
-    // Callback quando arquivo é selecionado
-    function pickerCallback(data) {
-      let url = 'Nenhum arquivo selecionado';
-      const resultDiv = document.getElementById('result');
-      if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-        const doc = data[google.picker.Response.DOCUMENTS][0];
-        url = doc[google.picker.Document.URL];
-        const fileId = doc[google.picker.Document.ID];
-        
-        // Copia o arquivo para sua pasta
-        copiarParaPasta(fileId);
-        
-        resultDiv.textContent = `Arquivo selecionado: ${url}. Enviado para correção!`;
-        resultDiv.style.color = 'green';
-      } else {
-        resultDiv.textContent = 'Seleção cancelada.';
-        resultDiv.style.color = 'orange';
-      }
+    function closeModal() {
+      document.getElementById('dropboxModal').style.display = 'none';
     }
 
-    // Função para copiar arquivo para sua pasta
-    async function copiarParaPasta(fileId) {
-      // Carrega o client se não estiver
-      await gapi.load('client:auth2', () => {
-        gapi.client.init({
-          apiKey: 'AIzaSyBKOZ2j3WTaCsafunstfuSn2n1TgNHRRSI',  // Chave de API
-          discoveryDocs: ['https://www.googleapis.com/discovery/v3/apis/drive/v3/rest'],
-        });
-      });
-
-      try {
-        const response = await gapi.client.drive.files.copy({
-          fileId: fileId,
-          parents: ['1WpDMNWRtSluK-ITZR5culfcsZA7PgRCN']  // ID da pasta
-        });
-        console.log('Arquivo copiado! Novo ID:', response.result.id);
-      } catch (error) {
-        console.error('Erro no upload:', error);
-        document.getElementById('result').textContent = 'Erro ao enviar. Tente novamente.';
-        document.getElementById('result').style.color = 'red';
+    // Fechar modal se clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('dropboxModal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
       }
     }
   </script>
