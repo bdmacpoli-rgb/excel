@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Aulas de Excel com o Professor Luciano – materiais práticos, exercícios e planilhas para todos os níveis.">
+  <title>Professor Luciano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <style>
+    :root {
+      --primary-color: #374151;
+      --primary-dark: #1F2A44;
+      --bg-color: #F9FAFB;
+      --secondary-color: #06B6D4;
+      --accent-color: #F87171;
+      --text-primary: #111827;
+      --text-secondary: #4B5563;
+      --border-light: #E5E7EB;
+      --shadow-sm: rgba(0, 0, 0, 0.05);
+      --shadow-md: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', system-ui, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 18px 0;
+      box-shadow: 0 2px 10px var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      background: white;
+      color: var(--primary-color);
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      box-shadow: 0 4px 8px var(--shadow-md);
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .logo span {
+      color: var(--secondary-color);
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 24px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 6px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--secondary-color);
+      border-bottom-color: var(--secondary-color);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 60px 0 40px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Aulas */
+    .aulas-section {
+      padding: 20px 0 60px;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-title h2 {
+      font-size: 28px;
+      color: var(--primary-color);
+      font-weight: 700;
+      position: relative;
+      display: inline-block;
+      padding-bottom: 10px;
+    }
+
+    .section-title h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: var(--secondary-color);
+      border-radius: 2px;
+    }
+
+    /* Layout em coluna única */
+    .aulas-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .aula-card {
+      width: 100%;
+      max-width: 600px;
+      min-height: 340px;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px var(--shadow-sm);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-top: 4px solid var(--secondary-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .aula-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 24px var(--shadow-md);
+    }
+
+    .aula-header {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-light);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .aula-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(6, 182, 212, 0.1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      color: var(--secondary-color);
+      font-size: 28px;
+    }
+
+    .aula-header h3 {
+      font-size: 20px;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+
+    .aula-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      padding: 0 10px;
+    }
+
+    .aula-body {
+      padding: 24px;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--secondary-color), #0891b2);
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35);
+    }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 30px 0;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer-content h3 {
+      color: var(--secondary-color);
+      margin-bottom: 12px;
+      font-size: 22px;
+    }
+
+    .footer-content p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    .copyright {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      margin-top: 15px;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+      }
+      nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+      }
+      .hero h1 {
+        font-size: 28px;
+      }
+      .hero p {
+        font-size: 16px;
+      }
+      .aulas-grid {
+        padding: 0 15px;
+      }
+      .btn {
+        width: 100%;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho -->
+  <header>
+    <div class="container header-content">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-table"></i>
+        </div>
+        <h1>Professor <span>Luciano</span></h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#" class="active">Início</a></li>
+          <li><a href="#">Aulas</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Aulas de Excel com Clareza e Prática</h1>
+      <p>Materiais pensados para você aprender com autonomia, do básico ao avançado.</p>
+    </div>
+  </section>
+
+  <!-- Aulas -->
+  <section class="aulas-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Materiais Disponíveis</h2>
+      </div>
+      <div class="aulas-grid">
+        <!-- Aula 01 -->
+        <div class="aula-card">
+          <div class="aula-header">
+            <div class="aula-icon">
+              <i class="fas fa-file-excel"></i>
+            </div>
+            <h3>Aula 01 – Exercícios Básicos de Planilhas</h3>
+            <p>Vendas trimestrais com totais, médias, máximos e mínimos; controle de contas pessoais com saldos mensais; cálculo salarial com INSS e gratificação.</p>
+          </div>
+          <div class="aula-body">
+            <a href="https://docs.google.com/spreadsheets/d/1DaQyKSjVuPUOkj61s0dkJEPbx_zdKb2X/export?format=xlsx"
+               class="btn"
+               download="Aula-01-Excel.xlsx">
+              <i class="fas fa-download"></i> Baixar Planilha
+            </a>
+          </div>
+        </div>
+
+        <!-- Aula 02 -->
+        <div class="aula-card">
+          <div class="aula-header">
+            <div class="aula-icon">
+              <i class="fas fa-file-excel"></i>
+            </div>
+            <h3>Aula 02 – Demonstrativo de Resultado (DRE)</h3>
+            <p>Construção de DRE com vendas líquidas, custo dos produtos vendidos (45%), despesas operacionais e cálculo do lucro líquido com imposto de renda (34%).</p>
+          </div>
+          <div class="aula-body">
+            <a href="https://docs.google.com/spreadsheets/d/1B6nGhhexdFyThVA-NbhWnuUkIFlAmebi/export?format=xlsx"
+               class="btn"
+               download="Aula-02-DRE.xlsx">
+              <i class="fas fa-download"></i> Baixar Planilha
+            </a>
+          </div>
+        </div>
+
+        <!-- Aula 03 -->
+        <div class="aula-card">
+          <div class="aula-header">
+            <div class="aula-icon">
+              <i class="fas fa-file-excel"></i>
+            </div>
+            <h3>Aula 03 – Cálculos Financeiros e Funções Avançadas</h3>
+            <p>Juros simples e compostos, funções VF, VP, PGTO, NPER, TAXA, cálculo de dias corridos/úteis e uso da função CÉLULA para análise de planilhas.</p>
+          </div>
+          <div class="aula-body">
+            <a href="https://docs.google.com/spreadsheets/d/1lOOLoDtm8UkuyhQBqZu3cq2qhHB3ynxF/export?format=xlsx"
+               class="btn"
+               download="Aula-03-Financeiro.xlsx">
+              <i class="fas fa-download"></i> Baixar Planilha
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rodapé -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <h3>Professor Luciano</h3>
+        <p>Ensino de Excel com foco em prática e compreensão</p>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Professor Luciano. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
