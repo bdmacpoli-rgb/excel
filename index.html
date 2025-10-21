@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
   <style>
+    /* Seu CSS original permanece igual aqui */
     :root {
       --primary-color: #374151;
       --primary-dark: #1F2A44;
@@ -250,11 +251,42 @@
       width: 100%;
       max-width: 280px;
       margin: 0 auto;
+      border: none;
+      cursor: pointer;
     }
 
     .btn:hover {
       transform: scale(1.03);
       box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35);
+    }
+
+    /* Nova seção para Envio de Atividades */
+    .envio-section {
+      padding: 60px 0;
+      background: white;
+      margin: 40px 0;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px var(--shadow-sm);
+    }
+
+    .envio-title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .envio-title h2 {
+      font-size: 28px;
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--bg-color);
+      text-align: center;
+      font-weight: 500;
     }
 
     /* Footer */
@@ -311,6 +343,35 @@
       }
     }
   </style>
+
+  <!-- Scripts do Google Picker e OAuth -->
+  <script>
+    let tokenClient;
+    let accessToken = null;
+    let pickerInited = false;
+    let gisInited = false;
+
+    // Carrega o Picker
+    function onApiLoad() {
+      gapi.load('picker', onPickerApiLoad);
+    }
+
+    function onPickerApiLoad() {
+      pickerInited = true;
+    }
+
+    // Inicializa OAuth
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: '55857641333-0b3q5g8p3b0u0t1s9r2v4w6x8y0z2a4b.apps.googleusercontent.com',  // Client ID adicionado aqui
+        scope: 'https://www.googleapis.com/auth/drive.file',  // Escopo mínimo para privacidade
+        callback: '',  // Definido depois
+      });
+      gisInited = true;
+    }
+  </script>
+  <script async defer src="https://apis.google.com/js/api.js" onload="onApiLoad()"></script>
+  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </head>
 <body>
 
@@ -404,6 +465,33 @@
     </div>
   </section>
 
+  <!-- Seção de Envio de Atividades -->
+  <section class="envio-section">
+    <div class="container">
+      <div class="envio-title">
+        <h2>Envie Sua Atividade</h2>
+        <p>Selecione um arquivo do seu Google Drive e envie para correção.</p>
+      </div>
+      <div class="aulas-grid">
+        <div class="aula-card">
+          <div class="aula-header">
+            <div class="aula-icon">
+              <i class="fas fa-upload"></i>
+            </div>
+            <h3>Upload de Arquivo</h3>
+            <p>Clique abaixo para abrir o seletor de arquivos do Google Drive.</p>
+          </div>
+          <div class="aula-body">
+            <button onclick="createPicker()" class="btn">
+              <i class="fas fa-cloud-upload-alt"></i> Enviar Atividade
+            </button>
+            <div id="result"></div>  <!-- Mostra resultado do upload -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Rodapé -->
   <footer>
     <div class="container">
@@ -416,6 +504,85 @@
       </div>
     </div>
   </footer>
+
+  <!-- Script principal do Picker -->
+  <script>
+    // Função para criar o Picker
+    function createPicker() {
+      const showPicker = () => {
+        if (!pickerInited) {
+          alert('Picker ainda carregando... Tente novamente.');
+          return;
+        }
+        const picker = new google.picker.PickerBuilder()
+          .addView(google.picker.ViewId.DOCS)  // Mostra documentos (mude para IMAGES se quiser só imagens)
+          .setOAuthToken(accessToken)
+          .setDeveloperKey('AIzaSyBKOZ2j3WTaCsafunstfuSn2n1TgNHRRSI')  // Chave de API
+          .setCallback(pickerCallback)
+          .setAppId('558572641333')  // App ID (número do projeto)
+          .build();
+        picker.setVisible(true);
+      };
+
+      // Solicita token de acesso
+      tokenClient.callback = async (response) => {
+        if (response.error !== undefined) {
+          throw (response);
+        }
+        accessToken = response.access_token;
+        showPicker();
+      };
+
+      if (accessToken === null) {
+        tokenClient.requestAccessToken({prompt: 'consent'});
+      } else {
+        tokenClient.requestAccessToken({prompt: ''});
+      }
+    }
+
+    // Callback quando arquivo é selecionado
+    function pickerCallback(data) {
+      let url = 'Nenhum arquivo selecionado';
+      const resultDiv = document.getElementById('result');
+      if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+        const doc = data[google.picker.Response.DOCUMENTS][0];
+        url = doc[google.picker.Document.URL];
+        const fileId = doc[google.picker.Document.ID];
+        
+        // Copia o arquivo para sua pasta
+        copiarParaPasta(fileId);
+        
+        resultDiv.textContent = `Arquivo selecionado: ${url}. Enviado para correção!`;
+        resultDiv.style.color = 'green';
+      } else {
+        resultDiv.textContent = 'Seleção cancelada.';
+        resultDiv.style.color = 'orange';
+      }
+    }
+
+    // Função para copiar arquivo para sua pasta
+    async function copiarParaPasta(fileId) {
+      // Carrega o client se não estiver
+      await gapi.load('client:auth2', () => {
+        gapi.client.init({
+          apiKey: 'AIzaSyBKOZ2j3WTaCsafunstfuSn2n1TgNHRRSI',  // Chave de API
+          discoveryDocs: ['https://www.googleapis.com/discovery/v3/apis/drive/v3/rest'],
+        });
+      });
+
+      try {
+        const response = await gapi.client.drive.files.copy({
+          fileId: fileId,
+          parents: ['1WpDMNWRtSluK-ITZR5culfcsZA7PgRCN']  // ID da pasta
+        });
+        console.log('Arquivo copiado! Novo ID:', response.result.id);
+      } catch (error) {
+        console.error('Erro no upload:', error);
+        document.getElementById('result').textContent = 'Erro ao enviar. Tente novamente.';
+        document.getElementById('result').style.color = 'red';
+      }
+    }
+  </script>
 
 </body>
 </html>
